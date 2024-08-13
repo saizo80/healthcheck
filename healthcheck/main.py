@@ -7,11 +7,11 @@ CONFIG_FILE = "healthcheck.json"
 
 app = typer.Typer(add_completion=False)
 
-@app.command()
-def config():
+def config_callback():
     endpoint = typer.prompt("enter the healthcheck endpoint (root url)")
     with open(CONFIG_FILE, "w") as f:
         json.dump({"endpoint": endpoint}, f, indent=2)
+    raise typer.Exit()
     
 
 @app.command()
@@ -22,6 +22,11 @@ def run(
     command: Annotated[str, typer.Argument(
         help="the command to run",
     )],
+    config: Annotated[bool, typer.Option(
+        "--config",
+        callback=config_callback,
+        help="configure the healthcheck endpoint",
+    )]
 ):
     try:
         if os.system(command) > 0:
